@@ -11,9 +11,18 @@ contract Authentification {
         string password;
         address wallet;
         bool isLogin;
+        bool IsFreelancer;
     }
 
-    User[] private users;
+    User[] private freelancers;
+    User[] private clients;
+    
+    address owner = msg.sender;
+
+    modifier _ownerOnly(){
+        require(msg.sender == owner);
+        _;
+    }
 
     mapping (address => User) private user;
 
@@ -21,7 +30,8 @@ contract Authentification {
         address _wallet,
         string memory _name,
         string memory _email,
-        string memory _password
+        string memory _password,
+        bool IsFreelancer
 
     ) public returns (bool) {
         require(user[_wallet].wallet != msg.sender);
@@ -30,7 +40,13 @@ contract Authentification {
         user[_wallet].email = _email;
         user[_wallet].password = _password;
         user[_wallet].isLogin = false;
-        users.push(user[_wallet]);
+        user[_wallet].IsFreelancer = IsFreelancer;
+        if(IsFreelancer==true){
+            freelancers[freelancers.length] = (user[_wallet]);
+        }else{
+            clients.push(user[_wallet]);
+        }
+        clients.push(user[_wallet]);
         return true;
     }
 
@@ -49,19 +65,20 @@ contract Authentification {
         }
     }
 
-    function checkIsUserLogged(address _wallet) public view returns (bool) {
-        return (user[_wallet].isLogin);
-    }
-
     function logout(address _wallet) public {
         user[_wallet].isLogin = false;
     }
 
-    function numberOfUsers() public view returns(uint)  {
-        uint returnValue=0;
-        for(uint i = 0; i<users.length;i++){
-            returnValue++;
-        }
-        return returnValue;
+    
+    function checkIsUserLogged(address _wallet) public view _ownerOnly returns (bool) {
+        return (user[_wallet].isLogin);
+    }
+
+    function getArrayFreelancer() public view _ownerOnly returns(User[] memory){
+        return freelancers;
+    }
+
+    function getArrayClients() public view _ownerOnly returns(User[] memory){
+        return clients;
     }
 }
