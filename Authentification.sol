@@ -23,6 +23,9 @@ contract Authentification {
         _;
     }
 
+    event _getUser(User _user);
+    event _getUserWallet(address _wallet);
+
     mapping (address => User) private user;
 
     function register(
@@ -40,6 +43,10 @@ contract Authentification {
         user[_wallet].password = _password;
         user[_wallet].isLogin = false;
         user[_wallet].IsFreelancer = IsFreelancer;
+
+        emit _getUser(user[_wallet]);
+        emit _getUserWallet(user[_wallet].wallet);
+
         if(IsFreelancer==true){
             freelancers[freelancers.length] = (user[_wallet]);
         }else{
