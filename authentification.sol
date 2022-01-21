@@ -1,25 +1,36 @@
+// SPDX-License-Identifier: GPL-3.0
+
 pragma solidity >=0.7.0 <0.9.0;
 
-import "./client.sol";
 
 contract Authentification {
+
+    struct User{
+        string name;
+        string email;
+        string password;
+        address wallet;
+        bool isLogin;
+    }
+
+    User[] private users;
+
+    mapping (address => User) private user;
 
     function register(
         address _wallet,
         string memory _name,
         string memory _email,
-        string memory _password,
-        uint _amount
+        string memory _password
 
     ) public returns (bool) {
-        require(client[_wallet].wallet != msg.sender);
-        client[_wallet].wallet = _wallet;
-        client[_wallet].name = _name;
-        client[_wallet].email = _email;
-        client[_wallet].amount = _amount;
-        client[_wallet].password = _password;
-        client[_wallet].isLogin = false;
-        clients.push(client[_wallet]);
+        require(user[_wallet].wallet != msg.sender);
+        user[_wallet].wallet = _wallet;
+        user[_wallet].name = _name;
+        user[_wallet].email = _email;
+        user[_wallet].password = _password;
+        user[_wallet].isLogin = false;
+        users.push(user[_wallet]);
         return true;
     }
 
@@ -28,27 +39,27 @@ contract Authentification {
         returns (bool)
     {
         if (
-            keccak256(abi.encodePacked(client[_wallet].password)) ==
+            keccak256(abi.encodePacked(user[_wallet].password)) ==
             keccak256(abi.encodePacked(_password))
         ) {
-            client[_wallet].isUserLoggedIn = true;
-            return client[_wallet].isUserLoggedIn;
+            user[_wallet].isLogin = true;
+            return user[_wallet].isLogin;
         } else {
             return false;
         }
     }
 
     function checkIsUserLogged(address _wallet) public view returns (bool) {
-        return (client[_wallet].isUserLoggedIn);
+        return (user[_wallet].isLogin);
     }
 
     function logout(address _wallet) public {
-        client[_wallet].isUserLoggedIn = false;
+        user[_wallet].isLogin = false;
     }
 
-    function numberOfClients(Client[] memory clientsArr) public returns(uint)  {
+    function numberOfUsers() public view returns(uint)  {
         uint returnValue=0;
-        for(uint i = 0; i<clientsArr.length;i++){
+        for(uint i = 0; i<users.length;i++){
             returnValue++;
         }
         return returnValue;
